@@ -62,14 +62,7 @@ for i in range(len(df_primary_and_secondary)):
 # printing to see if it worked, but we still won't be able to tell till we see the CSV:
 #print(df_switching_output)
 
-# Plotting the all the dataframes to verify switching:
-#df_primary_and_secondary.plot()
-#plt.show()
-
-figure, ax1 = plt.subplots()
-ax1.plot(df_primary_and_secondary[df_primary_and_secondary.columns[0]],df_primary_and_secondary[df_primary_and_secondary.columns[1]],linewidth=0.5,zorder=1, label = "Primary Power")
-ax1.plot(df_primary_and_secondary[df_primary_and_secondary.columns[0]],df_primary_and_secondary[df_primary_and_secondary.columns[2]],linewidth=0.5,zorder=1, label = "Secondary Power")
-
+# Plotting to verify switching:
 df_switching_output.plot()
 plt.show()
 
@@ -89,6 +82,6 @@ df_all.to_csv('primary_and_secondary_and_switched_output.csv', index=False)
 
 
 # Removing column labels for easier gridlabbing:
-#df_switched_output.columns = [''] * len(df_switching_output.columns)
-#df_switching_output.to_csv('switched_output.csv', index=False)
-#print (df_switched_output)
+df_switched_output.columns = [''] * len(df_switching_output.columns)
+print(df_switched_output)
+df_switching_output.to_csv('switched_output_GLD.csv', index=False)
