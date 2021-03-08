@@ -32,11 +32,14 @@ df_switching_output['Power'] = 0
 # How do you get to a specific entry in a df with if you have dimensions?
 #print(df_primary_and_secondary.iloc[0,1])
 
-# Comparison process:
-# We want to first check if the primary is over 100 W, if it is, then we automatically turn it on
-# and whatever value that is is written into its corresponding df_switching_output index. If the primary is
-# lower than that, we can look at the secondary and see if it's above 100. If it is, then the corresponding
-# df_switching_output index is equal to the secondary.
+'''
+Comparison process:
+We want to first check if the primary is over 100 W, if it is, then we automatically turn it on
+and whatever value that is is written into its corresponding df_switching_output index. If the primary is
+lower than that, we can look at the secondary and see if it's above 100. If it is, then the corresponding
+df_switching_output index is equal to the secondary. If both the primary & secondary are below the threshold
+then we keep the power value is zero.
+'''
 
 #count = 0
 for i in range(len(df_primary_and_secondary)):
@@ -47,15 +50,14 @@ for i in range(len(df_primary_and_secondary)):
     elif df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100:
         df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')]
 
-# else don't change anything (if both are below threshold of 100)
-
 '''
+# Handmade progress bar (to double check that the script is still running), don't forget to uncomment count if you uncomment this:
     if count == 100:
-        print('made it to 100')
+        print('Made it to 100!')
     if count % 10000 == 0:
-        print('made it to '+str(count))
+        print('Made it to '+str(count) +'!')
     count += 1
-    #print('this is count ' + str(count))
+    #print('This is count ' + str(count))
     #print(df_switching_output.iloc[i])
 '''
 
@@ -64,6 +66,7 @@ for i in range(len(df_primary_and_secondary)):
 
 # Plotting to verify switching:
 df_switching_output.plot()
+plt.title('Switched Output')
 plt.show()
 
 
