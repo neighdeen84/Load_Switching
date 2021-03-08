@@ -38,7 +38,7 @@ df_switching_output['Power'] = 0
 # lower than that, we can look at the secondary and see if it's above 100. If it is, then the corresponding
 # df_switching_output index is equal to the secondary.
 
-count = 0
+#count = 0
 for i in range(len(df_primary_and_secondary)):
 
     if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] > 100:
@@ -58,10 +58,18 @@ for i in range(len(df_primary_and_secondary)):
     #print('this is count ' + str(count))
     #print(df_switching_output.iloc[i])
 '''
+
 # printing to see if it worked, but we still won't be able to tell till we see the CSV:
 #print(df_switching_output)
 
-# Plotting the switched output:
+# Plotting the all the dataframes to verify switching:
+#df_primary_and_secondary.plot()
+#plt.show()
+
+figure, ax1 = plt.subplots()
+ax1.plot(df_primary_and_secondary[df_primary_and_secondary.columns[0]],df_primary_and_secondary[df_primary_and_secondary.columns[1]],linewidth=0.5,zorder=1, label = "Primary Power")
+ax1.plot(df_primary_and_secondary[df_primary_and_secondary.columns[0]],df_primary_and_secondary[df_primary_and_secondary.columns[2]],linewidth=0.5,zorder=1, label = "Secondary Power")
+
 df_switching_output.plot()
 plt.show()
 
@@ -80,6 +88,7 @@ df_all['Power_Switched'] = df_switching_output.iloc[:,1]
 df_all.to_csv('primary_and_secondary_and_switched_output.csv', index=False)
 
 
-# Removing column labels for easier gridlabbing (might do this at the very end instead if it's easier for python):
+# Removing column labels for easier gridlabbing:
 #df_switched_output.columns = [''] * len(df_switching_output.columns)
-#print (df_primary_and_secondary)
+#df_switching_output.to_csv('switched_output.csv', index=False)
+#print (df_switched_output)
