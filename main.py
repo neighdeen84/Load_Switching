@@ -46,6 +46,8 @@ for i in range(len(df_primary_and_secondary)):
     elif df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100:
         df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')]
 
+# else don't change anything (if both are below threshold of 100)
+
 '''
     if count == 100:
         print('made it to 100')
@@ -57,7 +59,9 @@ for i in range(len(df_primary_and_secondary)):
 '''
 # printing to see if it worked, but we still won't be able to tell till we see the CSV:
 print(df_switching_output)
-# else don't change anything
+
+# Printing out the final output CSV: :D
+df_switching_output.to_csv('switched_output.csv', index=False)
 
 #import matplotlib.pyplot as plt
 #df_switching_output.plot()
