@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Enter in the CSVs you want to process:
 df_primary = pd.read_csv('TEST_dryer_profile_611_1.csv', header=None)
@@ -58,26 +59,27 @@ for i in range(len(df_primary_and_secondary)):
     #print(df_switching_output.iloc[i])
 '''
 # printing to see if it worked, but we still won't be able to tell till we see the CSV:
-print(df_switching_output)
+#print(df_switching_output)
+
+# Plotting the switched output:
+df_switching_output.plot()
+plt.show()
+
 
 # Printing out the final output CSV: :D
 df_switching_output.to_csv('switched_output.csv', index=False)
 
-#import matplotlib.pyplot as plt
-#df_switching_output.plot()
-#plt.show()
-#print(df_primary_and_secondary.iloc[0,df_primary_and_secondary.columns.get_loc('Power_1')])
-#df3 = df_primary_and_secondary[df_primary_and_secondary['Power_1'] > 100]
-#print(df3)
 
-
-
-
-
-
-
+# Kinda want another CSV with all 3 power values to see if the switching is happening:
+df_all = pd.DataFrame() # Create empty dateframe
+df_all['Time'] = df_primary_and_secondary.iloc[:,0]
+df_all['Power_1'] = df_primary_and_secondary.iloc[:,1]
+df_all['Power_2'] = df_primary_and_secondary.iloc[:,2]
+df_all['Power_Switched'] = df_switching_output.iloc[:,1]
+#print(df_all)
+df_all.to_csv('primary_and_secondary_and_switched_output.csv', index=False)
 
 
 # Removing column labels for easier gridlabbing (might do this at the very end instead if it's easier for python):
-#df_primary_and_secondary.columns = [''] * len(df_primary_and_secondary.columns)
+#df_switched_output.columns = [''] * len(df_switching_output.columns)
 #print (df_primary_and_secondary)
