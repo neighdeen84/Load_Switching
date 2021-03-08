@@ -5,25 +5,21 @@ import matplotlib.pyplot as plt
 df_primary = pd.read_csv('TEST_dryer_profile_611_1.csv', header=None)
 df_secondary = pd.read_csv('converted0_MDF_EV.csv', header=None)
 
-# Adding a new empty column to the primary (dryer) dataframe to merge it with the secondary's (EV) dataframe:
-df_primary['newcol'] = ""
+# Creating a new dataframe for the merged primary & secondary:
+df_primary_and_secondary = pd.DataFrame() # Create empty dataframe
 
-# Filling the third empty column of the primary with the power values from the second column in the secondary dataframe:
-df_primary.iloc[:,2]= df_secondary.iloc[:,1]
-df_primary_and_secondary = df_primary
-
-#Labeling the primary and secondary columns (will remove the labels at the end):
-df_primary_and_secondary.columns = ['Time', 'Power_1', 'Power_2']
-
+# Set first column equal to the same ones of the primary's timestamp, and the second and third equal to the power cols:
+df_primary_and_secondary['Time'] = df_primary.iloc[:,0]
+df_primary_and_secondary['Power_1'] = df_primary.iloc[:,1]
+df_primary_and_secondary['Power_2'] = df_secondary.iloc[:,1]
 
 # Creating a new dataframe for the switched output:
-df_switching_output = pd.DataFrame() # Create empty dateframe
+df_switching_output = pd.DataFrame() # Create empty dataframe
 
 # Set first columns equal to the same ones of the primary & secondary merged dataframe, zero out the power col:
 df_switching_output['Time'] = df_primary_and_secondary.iloc[:,0]
 df_switching_output['Power'] = df_primary_and_secondary.iloc[:,1]
 df_switching_output['Power'] = 0
-
 
 # Double check that everything is working as it should:
 #print(df_primary_and_secondary)
@@ -69,13 +65,11 @@ df_switching_output.plot()
 plt.title('Switched Output')
 plt.show()
 
-
 # Printing out the final output CSV: :D
 df_switching_output.to_csv('switched_output.csv', index=False)
 
-
 # Kinda want another CSV with all 3 power values to see if the switching is happening:
-df_all = pd.DataFrame() # Create empty dateframe
+df_all = pd.DataFrame() # Create empty dataframe
 df_all['Time'] = df_primary_and_secondary.iloc[:,0]
 df_all['Power_1'] = df_primary_and_secondary.iloc[:,1]
 df_all['Power_2'] = df_primary_and_secondary.iloc[:,2]
@@ -83,8 +77,7 @@ df_all['Power_Switched'] = df_switching_output.iloc[:,1]
 #print(df_all)
 df_all.to_csv('primary_and_secondary_and_switched_output.csv', index=False)
 
-
 # Removing column labels for easier gridlabbing:
-df_switched_output.columns = [''] * len(df_switching_output.columns)
-print(df_switched_output)
+df_switching_output.columns = [''] * len(df_switching_output.columns)
+#print(df_switching_output)
 df_switching_output.to_csv('switched_output_GLD.csv', index=False)
