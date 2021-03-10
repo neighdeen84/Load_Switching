@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Enter in the CSVs you want to process:
-df_primary = pd.read_csv('TEST_dryer_profile_611_1.csv', header=None)
+df_primary = pd.read_csv('dryer_profile_611_1.csv', header=None)
 df_secondary = pd.read_csv('converted0_MDF_EV.csv', header=None)
 
 # Creating a new dataframe for the merged primary & secondary:
@@ -13,6 +13,7 @@ df_primary_and_secondary['Time'] = df_primary.iloc[:,0]
 df_primary_and_secondary['Power_1'] = df_primary.iloc[:,1]
 df_primary_and_secondary['Power_2'] = df_secondary.iloc[:,1]
 
+#print(df_primary_and_secondary)
 # Creating a new dataframe for the switched output:
 df_switching_output = pd.DataFrame() # Create empty dataframe
 
@@ -37,14 +38,38 @@ df_switching_output index is equal to the secondary. If both the primary & secon
 then we keep the power value is zero.
 '''
 
+# Setting the initial conditions:
 #count = 0
+power_2_status = False
+place_holder = 0
+power_1_turned_on = False
+
 for i in range(len(df_primary_and_secondary)):
 
+    # Power 1 is on:
     if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] > 100:
+        power_1_turned_on = True
         df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')]
 
-    elif df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100:
-        df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')]
+    # Power 2 on and power 1 off and there's no storage happening yet(power 1 hasn't turned on yet):
+    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100 and df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] < 100 and power_1_turned_on is not True:
+        df_switching_output.iloc[i, 1] = df_primary_and_secondary.iloc[i, df_primary_and_secondary.columns.get_loc('Power_2')]
+
+    # Saves place of power 2 and toggle status:
+    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100 and  df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] > 100 and power_2_status is not True:
+        power_2_status = True
+        place_holder = i
+
+    # Power 1 off and power 2 status on:
+    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] < 100 and power_2_status is True:
+        df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[place_holder,df_primary_and_secondary.columns.get_loc('Power_2')]
+        place_holder+=1
+
+    # Check place holder value and toggle status back off (so the previous if statements work)
+    if df_primary_and_secondary.iloc[place_holder, df_primary_and_secondary.columns.get_loc('Power_2')] < 100:
+        power_2_status = False
+
+#print(df_switching_output)
 
 '''
 # Handmade progress bar (to double check that the script is still running), don't forget to uncomment count if you uncomment this:
@@ -59,6 +84,7 @@ for i in range(len(df_primary_and_secondary)):
 
 # printing to see if it worked, but we still won't be able to tell till we see the CSV:
 #print(df_switching_output)
+
 
 # Plotting to verify switching:
 df_switching_output.plot()
