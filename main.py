@@ -1,8 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Enter in the CSVs you want to process:
-df_primary = pd.read_csv('dryer_profile_611_1.csv', header=None)
+df_primary = pd.read_csv('Neocharge_log_1_24_2021_MDF2_GLD_24H.csv', header=None)
 df_secondary = pd.read_csv('converted0_MDF_EV.csv', header=None)
 
 # Creating a new dataframe for the merged primary & secondary:
@@ -12,6 +13,10 @@ df_primary_and_secondary = pd.DataFrame() # Create empty dataframe
 df_primary_and_secondary['Time'] = df_primary.iloc[:,0]
 df_primary_and_secondary['Power_1'] = df_primary.iloc[:,1]
 df_primary_and_secondary['Power_2'] = df_secondary.iloc[:,1]
+
+# Replacing NaN values with zeroes:
+#df_primary_and_secondary.fillna(0)
+df_primary_and_secondary.replace(np.nan, 0, inplace=True)
 
 #print(df_primary_and_secondary)
 # Creating a new dataframe for the switched output:
@@ -39,48 +44,89 @@ then we keep the power value is zero.
 '''
 
 # Setting the initial conditions:
-#count = 0
 power_2_status = False
-place_holder = 0
-power_1_turned_on = False
+place_holder = [0]
 
 for i in range(len(df_primary_and_secondary)):
+    # Smooth brain variables
+    power_1_on = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] > 100
+    power_2_on = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100
+    store_power_1 = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')]
+    store_power_2 = df_primary_and_secondary.iloc[i, df_primary_and_secondary.columns.get_loc('Power_2')]
+    store_power_2_deferral = df_primary_and_secondary.iloc[place_holder[0],df_primary_and_secondary.columns.get_loc('Power_2')]
+    ########################################################## Conditions
 
-    # Power 1 is on:
-    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] > 100:
-        power_1_turned_on = True
-        df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')]
+    # Power 1 on and power 2 off
+    ## OUTPUT: power 1
+    if power_1_on and not power_2_on:
+        df_switching_output.iloc[i, 1] = store_power_1
 
-    # Power 2 on and power 1 off and there's no storage happening yet(power 1 hasn't turned on yet):
-    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100 and df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] < 100 and power_1_turned_on is not True:
-        df_switching_output.iloc[i, 1] = df_primary_and_secondary.iloc[i, df_primary_and_secondary.columns.get_loc('Power_2')]
+    # Power 1 on and power 2 on
+    ## OUTPUT: power 1
+    if power_1_on and power_2_on:
+        df_switching_output.iloc[i, 1] = store_power_1
+        ### Power 2 status is not saved
+        if power_2_status is not True:
+            #### SAVE: power 2 place
+            power_2_status = True
+            place_holder.append(i)
 
-    # Saves place of power 2 and toggle status:
-    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_2')] > 100 and  df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] > 100 and power_2_status is not True:
-        power_2_status = True
-        place_holder = i
+    # Power 1 off and power 2 on
+    if not power_1_on and power_2_on:
+        ## No saved power 2
+        if power_2_status is False:
+            ### OUTPUT: power 2
+            df_switching_output.iloc[i, 1] = store_power_2
+        ## Power 2 is saved
+        if power_2_status is True:
+            place_holder.append(i)
+            ### OUTPUT: power 2 deferral
+            df_switching_output.iloc[i, 1] = store_power_2_deferral
+            place_holder.insert(1,place_holder[0]+1)
+            place_holder = place_holder[1:]
+            store_power_2_deferral = df_primary_and_secondary.iloc[place_holder[0], df_primary_and_secondary.columns.get_loc('Power_2')]
 
-    # Power 1 off and power 2 status on:
-    if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Power_1')] < 100 and power_2_status is True:
-        df_switching_output.iloc[i,1] = df_primary_and_secondary.iloc[place_holder,df_primary_and_secondary.columns.get_loc('Power_2')]
-        place_holder+=1
 
-    # Check place holder value and toggle status back off (so the previous if statements work)
-    if df_primary_and_secondary.iloc[place_holder, df_primary_and_secondary.columns.get_loc('Power_2')] < 100:
-        power_2_status = False
+    # Power 1 off and power 2 off
+    if not power_1_on and not power_2_on:
+        ## Power 2 is saved
+        if power_2_status is True:
+            ### OUTPUT: power 2 deferral
+            df_switching_output.iloc[i, 1] = store_power_2_deferral
+            place_holder.insert(1, place_holder[0] + 1)
+            place_holder = place_holder[1:]
+            store_power_2_deferral = df_primary_and_secondary.iloc[place_holder[0], df_primary_and_secondary.columns.get_loc('Power_2')]
+            # check next value for place_holder
+            # TODO: say outloud again
+            if store_power_2_deferral < 100:
+                power_2_status = False
+                if len(place_holder[1:]) != 0:
+                    place_holder = place_holder[1:]
+                    store_power_2_deferral = df_primary_and_secondary.iloc[place_holder[0], df_primary_and_secondary.columns.get_loc('Power_2')]
+                    power_2_status = True
+        '''
+        ########################################################## Check
+        if df_primary_and_secondary.iloc[i,df_primary_and_secondary.columns.get_loc('Time')] == '2021-01-24 14:00:58':
+        print('power 1')
+        print(power_1_on)
+
+        print('power 2')
+        print(power_2_on)
+
+        print('power_1_storage')
+        print(power_1_storage)
+
+        print('power_2_status')
+        print(power_2_status)
+
+        print('place_holder')
+        print(place_holder)
+
+        print('i')
+        print(i)
+        '''
 
 #print(df_switching_output)
-
-'''
-# Handmade progress bar (to double check that the script is still running), don't forget to uncomment count if you uncomment this:
-    if count == 100:
-        print('Made it to 100!')
-    if count % 10000 == 0:
-        print('Made it to '+str(count) +'!')
-    count += 1
-    #print('This is count ' + str(count))
-    #print(df_switching_output.iloc[i])
-'''
 
 # printing to see if it worked, but we still won't be able to tell till we see the CSV:
 #print(df_switching_output)
