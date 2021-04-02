@@ -97,7 +97,6 @@ for i in range(len(df_primary_and_secondary)):
             place_holder = place_holder[1:]
             store_power_2_deferral = df_primary_and_secondary.iloc[place_holder[0], df_primary_and_secondary.columns.get_loc('Power_2')]
             # check next value for place_holder
-            # TODO: say outloud again
             if store_power_2_deferral < 100:
                 power_2_status = False
                 if len(place_holder[1:]) != 0:
