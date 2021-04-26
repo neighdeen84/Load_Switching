@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Enter in the CSVs you want to process:
-df_primary = pd.read_csv('Dryer_2loads_5min.csv', header=None)
-df_secondary = pd.read_csv('EV1_5min.csv', header=None)
+df_primary = pd.read_csv('Dryer_7loads_5min.csv', header=None)
+df_secondary = pd.read_csv('EV5_5min.csv', header=None)
 
 # Creating a new dataframe for the merged primary & secondary:
 df_primary_and_secondary = pd.DataFrame() # Create empty dataframe
@@ -73,7 +73,7 @@ for i, row in df_primary_and_secondary.iterrows():
         df_switching_output.iloc[i, 1] = 0.0
 
 
-print("The Neocharger deferred the secondary power", str(deferred_count), "times")
+print("The NeoCharge deferred the secondary power", str(deferred_count), "times")
 
 # Plotting to verify switching:
 df_switching_output.plot()
@@ -90,9 +90,9 @@ df_all['Power_1'] = df_primary_and_secondary.iloc[:,1]
 df_all['Power_2'] = df_primary_and_secondary.iloc[:,2]
 df_all['Power_Switched'] = df_switching_output.iloc[:,1]
 #print(df_all)
-df_all.to_csv('primary_and_secondary_and_switched_output_1.csv', index=False)
+df_all.to_csv('primary_and_secondary_and_switched_output_5.csv', index=False)
 
 # Removing column labels for easier gridlabbing:
 df_switching_output.columns = [''] * len(df_switching_output.columns)
 #print(df_switching_output)
-df_switching_output.to_csv('switch1.csv', index=False, header=None)
+df_switching_output.to_csv('switch5.csv', index=False, header=None)
