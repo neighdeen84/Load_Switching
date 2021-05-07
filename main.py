@@ -20,7 +20,7 @@ def iter_files(dryer_folder_path,EV_folder_path):
 
 
     for dryer_file,EV_file in zip(os.listdir(dryer_folder_path),os.listdir(EV_folder_path)):
-        print(dryer_file, EV_file + ' are being processed right now')
+        print(dryer_file + ' and ' + EV_file + ' are being processed right now')
 
         # Enter in the CSVs you want to process:
         df_primary = pd.read_csv(dryer_folder_path +'\\'+ dryer_file, header=None)
@@ -34,7 +34,6 @@ def iter_files(dryer_folder_path,EV_folder_path):
         df_primary_and_secondary['Power_2'] = df_secondary.iloc[:,1]
 
         # Replacing NaN values with zeroes:
-        #df_primary_and_secondary.fillna(0)
         df_primary_and_secondary.replace(np.nan, 0, inplace=True)
 
         #print(df_primary_and_secondary)
@@ -77,11 +76,12 @@ def iter_files(dryer_folder_path,EV_folder_path):
                 df_switching_output.iloc[i, 1] = store_power_1
                 if power_2_on:
                     deferred_count += 1
-                    print("Deferred at", row['Time'])
-            # If we have power 2 to run, output that
+                    # Uncomment to show deferrals & their times:
+                    #print("Deferred at", row['Time'])
+            # If we have power 2 to run, output that:
             elif len(place_holder) > 0:
                 df_switching_output.iloc[i, 1] = place_holder.pop(0)
-            # Otherwise, output nuttin'
+            # Otherwise, don't output anything:
             else:
                 df_switching_output.iloc[i, 1] = 0.0
 
