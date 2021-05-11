@@ -114,6 +114,10 @@ def iter_files(dryer_folder_path,EV_folder_path):
         # Printing out the switched output csv:
         df_switching_output.to_csv( switched_dir + '\\switch'+ out_number+".csv", index=False, header=None)
 
+cwd = os.getcwd()
+data_dir = cwd + '\\data'
+dryer_profiles_dir = data_dir + '\\dryer_profiles_feeder'
+EV_profiles_dir = data_dir + '\\EV_profiles_feeder'
 
 # Calling the function (use EV profiles directory as function input):
-iter_files("D:\\Git Projects\\Load_Switching_1\\data\\dryer_profiles_feeder","D:\\Git Projects\\Load_Switching_1\\data\\EV_profile_feeder")
+iter_files(dryer_profiles_dir, EV_profiles_dir)
