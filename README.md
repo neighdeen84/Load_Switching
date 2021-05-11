@@ -10,7 +10,8 @@ This program iterates through two directories of profiles and processes them in 
 
 
 ## Requirements
-This program only works on Windows due to the directory convention used.
+This program only works on Windows due to the directory convention used. 
+You need to have the load profiles as CSVs in their respective directories.
 ```
 pip install numpy matplotlib
 ```
